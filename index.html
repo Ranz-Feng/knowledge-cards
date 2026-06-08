@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>知识卡片</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;background:#f8f9fc;color:#1a1a2e;height:100vh;overflow:hidden}
+.g1{position:fixed;top:-20%;right:-10%;width:60%;height:60%;background:radial-gradient(ellipse,rgba(139,92,246,0.18),transparent 70%);z-index:0;pointer-events:none}
+.g2{position:fixed;bottom:-15%;left:-5%;width:50%;height:50%;background:radial-gradient(ellipse,rgba(251,146,60,0.12),transparent 70%);z-index:0;pointer-events:none}
+.pst{position:fixed;inset:0;z-index:0;pointer-events:none;user-select:none}
+.pch{position:absolute;font-weight:900;line-height:1;background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(139,92,246,.06) 40%,rgba(251,146,60,.035));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pch-l{font-size:clamp(100px,15vw,200px);top:50%;left:0%;letter-spacing:-.02em;transform:translateY(-50%) scaleY(1.3);transform-origin:left center}
+.pch-r{font-size:clamp(100px,15vw,200px);top:50%;right:0%;letter-spacing:-.02em;transform:translateY(-50%) scaleY(1.3);transform-origin:right center}
+.app{position:relative;z-index:1;width:100%;height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:rgba(255,255,255,.9);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.5);border-radius:20px;padding:36px 32px 24px;box-shadow:0 8px 40px rgba(0,0,0,.05);width:480px;max-width:100%}
+.card .bd{display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;background:#eef2ff;color:#4f46e5;margin-bottom:14px}
+.card .tm{font-size:24px;font-weight:800;line-height:1.3;margin-bottom:4px}
+.pr{font-size:13px;color:#9ca3af;margin-bottom:12px;display:flex;gap:14px;align-items:baseline;line-height:1.4}
+.pe{font-style:italic;letter-spacing:.5px;font-family:'Times New Roman',serif}
+.pc{letter-spacing:1px}
+
+/* Dual card对比展示 */
+.dc-wrap{position:relative;width:100%;height:200px;margin-bottom:16px;perspective:800px}
+.dc-card{position:absolute;width:85%;padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.5);box-shadow:0 4px 20px rgba(0,0,0,.04);transition:all .3s cubic-bezier(.34,1.56,.64,1);cursor:default}
+.dc-card:hover{box-shadow:0 8px 40px rgba(0,0,0,.1),0 0 0 1px rgba(139,92,246,.15);transform:translateY(-2px)}
+.dc-main{left:0;top:0;z-index:2;transform:rotate(-1.5deg)}
+.dc-side{right:0;top:20px;z-index:1;transform:rotate(1.5deg)}
+.dc-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:10px;font-weight:600;background:#eef2ff;color:#4f46e5;margin-bottom:6px}
+.dc-term{font-size:16px;font-weight:700;line-height:1.3;margin-bottom:4px}
+.dc-pr{font-size:11px;color:#9ca3af;margin-bottom:6px;display:flex;gap:10px}
+.dc-def{font-size:12px;line-height:1.5;color:#6b7280}
+.dc-vs{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);font-size:11px;color:#7c3aed;background:rgba(139,92,246,.08);padding:3px 12px;border-radius:10px;white-space:nowrap;z-index:3}
+.sr{display:block;font-size:11px;color:#9ca3af;text-decoration:none;margin-bottom:12px;padding:4px 0;transition:color .2s}
+.sr:hover{color:#7c3aed;text-decoration:underline}
+.card .df{font-size:14px;line-height:1.6;padding:16px;background:#f9fafb;border-radius:12px;border-left:3px solid #6366f1;color:#374151;margin-bottom:12px}
+.prg{position:fixed;top:0;left:0;right:0;z-index:8;padding:12px 20px;display:flex;justify-content:space-between;background:linear-gradient(180deg,rgba(255,255,255,.6),transparent);pointer-events:none}
+.prg .l{font-size:11px;font-weight:600;color:#9ca3af}.prg .r{font-size:11px;color:#9ca3af}
+.dts{display:flex;justify-content:center;gap:6px;margin-bottom:14px}
+.dt{width:6px;height:6px;border-radius:50%;background:#d1d5db;transition:all .3s}
+.dt.cur{background:#7c3aed;transform:scale(1.4)}.dt.done{background:#10b981}
+.rw{position:fixed;left:0;bottom:0;width:520px;height:520px;z-index:5;pointer-events:none}
+.gf{position:fixed;left:0;bottom:0;right:0;height:140px;z-index:4;pointer-events:none;background:linear-gradient(0deg,rgba(139,92,246,.02),transparent)}
+
+
+.nb{position:absolute;width:64px;height:64px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:rgba(255,255,255,.26);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border:none;box-shadow:0 8px 32px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.04),inset 0 1px 0 rgba(255,255,255,.5);transition:all .35s cubic-bezier(.34,1.56,.64,1);pointer-events:auto;user-select:none;z-index:6}
+.nb:hover{transform:scale(1.1);background:rgba(255,255,255,.33);box-shadow:0 10px 40px rgba(0,0,0,.1),0 2px 8px rgba(0,0,0,.04)}
+.nb.active{transform:scale(1.22);background:rgba(255,255,255,.4);box-shadow:0 0 40px rgba(139,92,246,.2),0 12px 48px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.6)}
+.nb .ic{font-size:22px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.08))}.nb .lb{font-size:11px;font-weight:600;margin-top:3px;opacity:.75;text-align:center;color:#374151;letter-spacing:.5px}
+.nb.active .lb{opacity:1;color:#7c3aed;font-weight:800}
+
+.cb{padding:12px 16px;background:rgba(99,102,241,.04);border-radius:12px;border-left:3px solid #7c3aed;margin-bottom:14px;cursor:pointer;user-select:none}
+.cb .ch{font-size:12px;font-weight:600;color:#7c3aed;display:flex;align-items:center;gap:4px}
+.cb .ch::after{content:"▾";font-size:10px;transition:transform .25s}
+.cb.open .ch::after{transform:rotate(180deg)}
+.cb .cc{font-size:13px;line-height:1.6;color:#6b7280;max-height:0;overflow:hidden;transition:max-height .3s}
+.cb.open .cc{max-height:300px;margin-top:6px}
+.acts{display:flex;gap:8px}
+.btn{flex:1;padding:14px 8px;border:none;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;text-align:center;line-height:1.2;transition:transform .15s;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.btn:active{transform:scale(.96)}
+.btn .s{display:block;font-size:10px;font-weight:400;margin-top:2px;opacity:.7}
+.by{background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#065f46}
+.bw{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e}
+.br{background:linear-gradient(135deg,#fce4ec,#f8bbd0);color:#9b1c1c}
+.em{text-align:center;padding:60px 20px;display:none}
+.em .e{font-size:56px;margin-bottom:16px}
+.em h2{font-size:22px;font-weight:700;margin-bottom:8px}
+.em p{font-size:15px;color:#6b7280;line-height:1.6}
+.sd{background:rgba(255,255,255,.9);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.5);border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 4px 24px rgba(0,0,0,.04)}
+.sd h3{font-size:14px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.si{text-align:center;padding:16px 8px;background:#f9fafb;border-radius:12px}
+.si .nm{font-size:28px;font-weight:800;color:#7c3aed}.si .lb{font-size:11px;color:#9ca3af;margin-top:4px}
+.dr{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.dr .dn{width:64px;font-size:11px;font-weight:600;flex-shrink:0;color:#6b7280}
+.dr .db{flex:1;height:16px;background:#e5e7eb;border-radius:8px;overflow:hidden}
+.dr .df{height:100%;border-radius:8px}.dr .dc{font-size:11px;color:#9ca3af;width:32px;text-align:right}
+.ri{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px}
+.ri:last-child{border-bottom:none}.ri .rd{font-size:11px;color:#9ca3af;width:72px;flex-shrink:0}
+.ri .rt{flex:1;font-weight:500}.ri .rs{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:600}
+.rs0{background:#d1fae5;color:#065f46}.rs1{background:#fef3c7;color:#92400e}.rs2{background:#fce4ec;color:#9b1c1c}
+.hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);font-size:11px;color:#d1d5db;z-index:10;pointer-events:none;opacity:.4}
+.b7{background:#fff0e6;color:#d4530f}
+@media(max-width:600px){.card{padding:24px 20px}.card .tm{font-size:20px}.sg{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="g1"></div><div class="g2"></div>
+<div class="pst">
+  <div class="pch pch-l">知识</div>
+  <div class="pch pch-r">卡片</div>
+</div>
+<div class="prg"><span class="l" id="pt">0/39</span><span class="r" id="mt">掌握率 0%</span></div>
+<div class="app">
+  <div id="la" style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:480px">
+    <div class="dts" id="dts"></div>
+    <div id="cbx"></div>
+    <div class="em" id="eb"><div class="e">🎉</div><h2>今日学习已完成</h2><p>明天早上 10 点再见 🌅</p></div>
+  </div>
+  <div id="sa" style="display:none;width:100%;max-width:480px"></div>
+  <div id="ra" style="display:none;width:100%;max-width:480px"></div>
+</div>
+<div class="rw">
+  
+  <div class="nb" data-tab="学习" style="bottom:177px;left:28px;border-color:#7c3aed;box-shadow:0 0 24px rgba(139,92,246,.18)"><span class="ic">📖</span><span class="lb" style="opacity:1;color:#7c3aed">学习</span></div>
+  <div class="nb" data-tab="统计" style="bottom:122px;left:122px"><span class="ic">📊</span><span class="lb" style="">统计</span></div>
+  <div class="nb" data-tab="复习" style="bottom:28px;left:177px"><span class="ic">🔄</span><span class="lb" style="">复习</span></div>
+</div><div class="hint" id="hint">← 左右滑动卡片 →</div>
+<div class="gf"></div>
+
+<script>
+var CARDS_DATA = [{"id": "rag-001", "category": "AI产品", "term": "RAG (Retrieval-Augmented Generation)", "definition": "检索增强生成。让模型在回答前先去知识库里搜索相关文档，基于搜索结果回答，而不是全靠训练时的记忆。", "why_it_matters": "这是你做知识库产品的核心技术——用户文档存在库里，问问题时先去搜相关段落，然后让模型基于这些内容回答。RAG做得好不好直接决定了产品效果。", "analogy": "相当于开卷考试。模型不是背答案，而是先翻书（知识库）再回答。", "related": ["model-001"], "contrast": "RAG和SFT都是让模型更懂特定领域。RAG靠搜外部知识来回答，灵活但依赖知识库质量；SFT把知识写进模型参数里，稳定但更新成本高。知识库产品优先用RAG，特定优化场景加SFT。", "pronunciation": {"en": "/ɑːr eɪ dʒiː/", "cn": null}, "source": "https://arxiv.org/abs/2005.11401"}, {"id": "rag-002", "category": "AI产品", "term": "Chunking (语义分块)", "definition": "把长文档（如PDF、Word）按策略切成小段，每段就是一个知识片段，用于后续检索。常用的策略有：按标题分、按段落分、按固定长度分+重叠窗口。", "why_it_matters": "切块策略直接影响检索质量——切得太粗，一段包含多个主题，搜不准；切得太细，丢失上下文。你做云盘知识库，用户上传几十页的PDF，怎么切是第一个要解决的问题。", "analogy": "切书签——一本书你不可能每次从头翻，关键在于标记粒度对不对。", "related": ["model-007"], "contrast": "Chunking是给文档\"切块\"，Embedding是把每块转成向量。先切好才能转向量，转好向量才能做语义搜索——两者是前后道工序。", "pronunciation": {"en": "/ˈtʃʌŋkɪŋ/", "cn": "yǔ yì fēn kuài"}, "source": "https://www.pinecone.io/learn/chunking-strategies/"}, {"id": "rag-003", "category": "AI产品", "term": "Recall@Top5 (前5召回率)", "definition": "评估知识库检索质量的关键指标——模型搜索后返回的前5条结果里，真正相关的结果占多少比例。", "why_it_matters": "张淼简历里说她做到80%+，意思是你问10个问题，有8次以上最关键的信息在前5条里。这是判断知识库好不好的硬指标。", "analogy": "你百度搜东西，第一页(前10条)里有你想要的答案的比例。", "related": ["rag-005"], "contrast": "Recall@Top5是\"搜没搜到对的\"（初筛命中率），Rerank是\"把最准的排到最前面\"（精排）。先有Recall做海选，再有Rerank做精选。", "pronunciation": {"en": "/rɪˈkɔːl/", "cn": "qián wǔ zhào huí lǜ"}, "source": "https://en.wikipedia.org/wiki/Precision_and_recall"}, {"id": "rag-004", "category": "AI产品", "term": "Hybrid RAG (混合检索)", "definition": "同时使用「关键词搜索」+「语义向量搜索」两种方式检索文档，最后合并排序。关键词搜得准但不会同义词，语义搜得灵但偶尔跑偏，两者互补。", "why_it_matters": "你做知识库，用户可能搜「文档怎么上传」也可能搜「怎么把文件放进去」——关键词只匹配第一种，语义能理解第二种。双管齐下才有好效果。", "analogy": "既有目录索引(关键词)，又有模糊联想(语义)，两套检索系统一起上。", "related": ["rag-001"], "contrast": "普通RAG只用语义搜索，Hybrid RAG同时用关键词+语义两种方式。Hybrid更准但实现复杂度也更高。", "pronunciation": {"en": "/ˈhaɪbrɪd ɑːr eɪ dʒiː/", "cn": "hùn hé jiǎn suǒ"}, "source": "https://www.elastic.co/guide/en/elasticsearch/reference/current/hybrid-search.html"}, {"id": "rag-005", "category": "AI产品", "term": "Rerank (重排)", "definition": "第一次检索拿到100条候选结果后，用第二个更精准的模型把结果重新排序，取Top5给大模型。相当于初筛→精筛两级过滤。", "why_it_matters": "初次搜索可能结果很多但混着很多不相关的，直接喂给大模型浪费token也容易答错。Rerank做一道精筛，是知识库产品的重要优化手段。", "analogy": "海选100人→复试由专家评委重排打分→取前5名。", "related": ["rag-003"], "contrast": "参考上图", "pronunciation": {"en": "/ˈriːræŋk/", "cn": "zhòng pái"}, "source": "https://www.sbert.net/examples/applications/cross-encoder/README.html"}, {"id": "rag-006", "category": "AI产品", "term": "多轮Query改写", "definition": "在多轮对话中，把用户当前问题结合历史上下文，改写成一个完整独立的检索查询。", "why_it_matters": "用户问「怎么导入文档」→你回答了→他又问「那能搜图片吗」——「那」指代的是「知识库里」。不改写的话，模型单独拿「能搜图片吗」去搜，搜不到。", "analogy": "你跟别人聊天说「那个」——对方因为知道上下文才懂。Query改写就是帮模型理解这些代词指代什么。", "pronunciation": {"en": null, "cn": "duō lún qǔ gǎi xiě"}, "source": "https://arxiv.org/abs/2305.14283"}, {"id": "agent-001", "category": "AI产品", "term": "Agent (智能体)", "definition": "能自主思考、调用工具、完成多步骤任务的AI系统。不是一问一答，而是「理解目标→拆解步骤→调用工具→判断结果→给出最终输出」的完整闭环。", "why_it_matters": "Agent是你未来做智能知识库的方向——用户说「帮我找去年Q3关于XX项目的文档，总结成表格发我邮箱」，Agent能自己拆成找文档→提炼要点→生成表格→调邮箱API发送 四个步骤。", "analogy": "普通AI是问答机器人，Agent是自带工具箱的智能助理。", "related": ["agent-006"], "contrast": "Agent是自主智能体——能理解目标、拆解任务、调用工具。Skill SOP是Agent的\"标准化操作手册\"——把高频复杂任务变成可复用的流程。Agent可以执行多个Skill SOP，Skill SOP是Agent的能力组件。", "pronunciation": {"en": "/ˈeɪdʒənt/", "cn": "zhì néng tǐ"}, "source": "https://arxiv.org/abs/2309.07864"}, {"id": "agent-002", "category": "AI产品", "term": "MCP (Model Context Protocol)", "definition": "模型上下文协议。大模型调用外部工具的标准接口协议，相当于给模型装了一个「通用插口」，插上什么工具就能用什么工具。", "why_it_matters": "传统的Function Calling每接一个工具都要写一遍，MCP统一了协议标准。MCP让Agent能灵活接入数据库、API、文件系统等——你做知识库产品，Agent可能需要查用户权限、调文件存储、发消息通知，MCP就是干这个的。", "analogy": "USB-C接口——不管插硬盘、显示器还是充电器，接口统一了，即插即用。", "pronunciation": {"en": null, "cn": null}, "source": "https://modelcontextprotocol.io/"}, {"id": "agent-003", "category": "AI产品", "term": "Function Calling (函数调用)", "definition": "大模型在生成回复时，发现需要外部数据，主动「调用一个预先定义好的函数」。比如用户问「我的订单到哪了」，模型调用 query_order(id) 函数去数据库查。", "why_it_matters": "这是Agent能「做事」的基础。没有Function Calling，模型只能靠记忆回答，不能执行操作。", "analogy": "你问前台「我的快递在哪」，前台不自己猜，而是打电话问快递站。Function Calling就是那个「打电话」的动作。", "related": ["agent-004"], "contrast": "参考上图", "pronunciation": {"en": "/ˈfʌŋkʃən ˈkɔːlɪŋ/", "cn": "hán shù diào yòng"}, "source": "https://platform.openai.com/docs/guides/function-calling"}, {"id": "agent-004", "category": "AI产品", "term": "Intent Router (意图路由)", "definition": "用户输入后，先判断他想干什么（查文档/提问题/要操作），然后分发到不同的处理流程。意图分错了后面全跑偏。", "why_it_matters": "李辉简历里提到他把意图分发准确率从75%提升到92%。你做一个知识库产品，用户说「帮我删掉」——是想删文件？删聊天记录？还是删账号？路由错了就出事故。", "analogy": "电话客服先问你「办什么业务」，然后转接给对应部门。分错了人就白忙了。", "related": ["agent-003"], "contrast": "Intent Router先判断用户的意图（\"用户要查物流还是退货？\"），Function Calling再去执行具体操作（查物流API/调退货接口）。Router是大脑，Function Calling是手脚。", "pronunciation": {"en": "/ˈɪntent ˈruːtər/", "cn": "yì tú lù yóu"}, "source": "https://arxiv.org/abs/2310.11538"}, {"id": "agent-005", "category": "AI产品", "term": "ReAct (Reasoning + Acting)", "definition": "边思考边行动的Agent循环。先想一步→做一步→观察结果→再想下一步。一问一答的模式变成了「观察→思考→行动→观察→思考→行动...」的持续循环。", "why_it_matters": "这才是Agent的核心——不是简单的「用户问→AI答」，而是能自适应地多步操作。比如查故障，先搜日志→发现错误码→查错误码含义→定位到具体模块→给出修复建议。", "analogy": "修车师傅不是上来就拆发动机，而是：听声音→判断问题→再打开引擎盖看→确认故障→修。每一步做完都在决定下一步做什么。", "related": ["model-003"], "contrast": "对比同上", "pronunciation": {"en": null, "cn": null}, "source": "https://arxiv.org/abs/2210.03629"}, {"id": "model-001", "category": "算法/模型", "term": "SFT (Supervised Fine-Tuning 监督微调)", "definition": "拿一批已经标好正确答案的数据，让通用大模型在这个垂直领域上继续训练，让它更懂这个方向。", "why_it_matters": "通义千问很通用但不懂中国移动云盘的知识库业务。收集1000组「用户提问→正确回复」的数据微调一下，模型回答质量会明显提升。", "analogy": "一个通才医生转成眼科专科医生——基础医学知识（通用模型）有了，再集中学习眼科（垂直数据）成为专家。", "related": ["ai-002"], "contrast": "对比同上", "pronunciation": {"en": null, "cn": "jiān dū wēi tiáo"}, "source": "https://huggingface.co/docs/transformers/training"}, {"id": "model-002", "category": "算法/模型", "term": "DPO (Direct Preference Optimization)", "definition": "一种比PPO更简洁的模型微调方法。直接让模型从「好的回答」和「不好的回答」中学习偏好，不需要复杂的奖励模型。", "why_it_matters": "知识库场景里，经常有「模型答案对但很啰嗦」和「答案简洁但漏了关键信息」的权衡。DPO可以用「用户更偏好哪个答案」来做微调，比人工写标注规则更高效。", "analogy": "不是老师告诉你「正确答案是什么」，而是给你两个答案让你选「你觉得哪个更好」。模型慢慢就知道什么风格是好的。", "contrast": "DPO是PPO的简化版本。PPO需要先训练一个打分模型（奖励模型），再让目标模型学着优化。DPO直接用人比较过的好/坏答案来训练，少一个环节，更简洁高效。目前在业界DPO更流行。", "pronunciation": {"en": null, "cn": null}, "source": "https://arxiv.org/abs/2305.18290"}, {"id": "model-003", "category": "算法/模型", "term": "CoT (Chain-of-Thought 思维链)", "definition": "让模型一步步推理再给答案，而不是直接蹦结论。输出中包含「首先...然后...所以...」的推理过程。", "why_it_matters": "知识库场景中，用户问「为什么我的文档搜不到」，直接回答可能不准确，用CoT让模型先分析原因（权限/格式/索引延迟）再给结论，准确率高很多。", "analogy": "做数学题不仅要写答案，还要写「解：设X为...第一步...第二步...」的推导过程。", "related": ["model-006"], "contrast": "对比同上", "pronunciation": {"en": "/koʊt/", "cn": "sī wéi liàn"}, "source": "https://arxiv.org/abs/2201.11903"}, {"id": "model-004", "category": "算法/模型", "term": "Golden Set / 黄金评测集", "definition": "一批固定不变的「标准问题+标准答案」组合，用来反复测试模型效果有没有变好变差。", "why_it_matters": "你用RAG做知识库，今天改了分块策略、明天换了Embedding模型——怎么知道效果是变好了还是变差了？需要一套固定的测试题来量化对比。真正做过AI产品的PM都会告诉你这个最重要。", "analogy": "考试卷——换了个老师教学，但考试题不变，才能对比哪个老师教得好。", "pronunciation": {"en": "/ˈɡoʊldən ˈset/", "cn": "huáng jīn píng cè jí"}, "related": ["model-005"], "contrast": "黄金评测集是固定的标准题库，Bad Case归因是分析模型答错的原因。评测集告诉你「有没有问题」，归因告诉你「问题在哪」。", "source": "https://arxiv.org/abs/2309.01245"}, {"id": "model-005", "category": "算法/模型", "term": "Bad Case 归因", "definition": "模型答错了之后，系统性地分析「为什么错了」——是知识库里没相关内容？还是搜到了但没召回？还是模型理解错了？还是Prompt不合适？", "why_it_matters": "做AI产品70%的时间花在分析Bad Case上。你做的知识库产品，用户反馈「搜不到」可能是10种不同的原因，归因准了才能对症下药。", "analogy": "菜做咸了，是盐放多了？还是酱油倒多了？还是食材自带咸味？不分析清楚下次仍然咸。", "pronunciation": {"en": null, "cn": "guī yīn"}, "related": ["model-004"], "contrast": "对比同上", "source": "https://developers.google.com/machine-learning/crash-course/"}, {"id": "model-006", "category": "算法/模型", "term": "Hallucination (幻觉)", "definition": "模型编造看起来合理但实际错误的信息。比如问「移动云盘知识库支持哪些格式」，模型可能编一个不存在的格式。", "why_it_matters": "知识库产品最致命的问题。用户信任你的产品问问题，结果得到一个看起来很像真的但其实是假的答案——信任瞬间崩塌。做AI产品的核心工作之一就是治理幻觉。", "analogy": "一个自信但爱胡说的同事——他说得头头是道，你觉得好像有道理，结果发现是他编的。", "pronunciation": {"en": "/həˌluːsɪˈneɪʃən/", "cn": "huàn jué"}, "related": ["model-003"], "contrast": "幻觉是模型编造错误信息，CoT是让模型一步步思考。用CoT可以有效减少幻觉——因为模型在推理过程中更容易发现自己的错误。", "source": "https://arxiv.org/abs/2311.05526"}, {"id": "model-007", "category": "算法/模型", "term": "Embedding / 向量化", "definition": "把文字（一句话、一段文档）转换成一串数字（向量），语义相近的文字在数字空间中的距离也近。RAG检索的核心依赖这个技术。", "why_it_matters": "用户搜「云盘怎么扩容」，你的知识库里有「存储空间升级操作指南」，这两句话字面不同但意思相近——Embedding能识别这种语义相似性，是知识库能「理解」用户问题的基础。", "analogy": "给每个词、每段话算出一个「语义坐标」。把所有文档放在这个坐标空间里，用户的问题也放进去，找最近的文档就是你要的结果。", "related": ["rag-002"], "contrast": "参考上图", "pronunciation": {"en": "/ɪmˈbedɪŋ/", "cn": "xiàng liàng huà"}, "source": "https://en.wikipedia.org/wiki/Word_embedding"}, {"id": "bci-001", "category": "脑机接口", "term": "BCI (Brain-Computer Interface 脑机接口)", "definition": "在大脑和外部设备之间建立直接通信通道的技术。不经过肌肉、不靠语音，直接读取大脑信号来控制设备。", "why_it_matters": "脑机接口是AI的下一个前沿。虽然现在离你做的知识库产品还远，但脑控交互是人机交互的终极形态之一，了解这个方向有助于预判未来3-5年的产品趋势。", "analogy": "念力控制——你想「打开文档」，文档就打开了，不需要动手指、不需要说出口。", "pronunciation": {"en": "/biː siː aɪ/", "cn": "nǎo jī jiē kǒu"}, "related": ["bci-005"], "contrast": "BCI是脑机接口的统称，Neuralink是具体实现（侵入式）。BCI包含多种技术路线，Neuralink是其中知名度最高的品牌。", "source": "https://en.wikipedia.org/wiki/Brain-computer_interface"}, {"id": "bci-002", "category": "脑机接口", "term": "侵入式 vs 非侵入式 BCI", "definition": "侵入式：通过开颅手术将电极植入大脑皮层（如Neuralink），信号精度高但有创伤。非侵入式：戴在头上的设备（如EEG头盔），无创伤但信号噪音大。", "why_it_matters": "你如果关注脑机接口产品化，非侵入式是当前消费级产品的方向（不需要手术），但精度差；侵入式是Neuralink在走的方向，准确但门槛高。", "analogy": "收音机有天线的(非侵入=信号差但方便) vs 直接插线到音响的(侵入=信号好但有线)。", "contrast": "侵入式要开颅植入电极，信号精准但有创伤和排异风险（如Neuralink）。非侵入式戴头盔即可，无创但信号弱。半侵入式（如国内的NEO）是折中方案，埋在硬膜外但不伤皮层。", "pronunciation": {"en": null, "cn": "qīn rù shì yǔ fēi qīn rù shì"}, "source": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10556740/"}, {"id": "bci-003", "category": "脑机接口", "term": "EEG (脑电图)", "definition": "通过头皮上的电极记录大脑电活动的技术。最常见的非侵入式脑信号采集方式。", "why_it_matters": "目前消费级脑机接口产品的主流技术（比如睡眠监测头带、冥想辅助设备）。信号弱但成本低、便携。", "analogy": "心电图的脑部版——贴几个贴片在头皮上，记录你大脑的「心电活动」。", "related": ["bci-004"], "contrast": "EEG测脑电波（快但噪音大），fNIRS测血氧变化（慢但抗干扰强）。两者是互补技术，不是替代关系。", "pronunciation": {"en": "/iː iː dʒiː/", "cn": "nǎo diàn tú"}, "source": "https://en.wikipedia.org/wiki/Electroencephalography"}, {"id": "bci-004", "category": "脑机接口", "term": "fNIRS (功能性近红外光谱)", "definition": "通过近红外光照射大脑皮层，检测脑部血氧变化来间接推断脑活动。", "why_it_matters": "比EEG抗干扰性强（不容易被眨眼/咬牙干扰），比fMRI便携，适合做「边走边测」的场景。", "analogy": "用手电筒照你的手指看血液流动——fNIRS就是用近红外光「照」你的大脑表层看哪块区域在活跃工作。", "related": ["bci-003"], "contrast": "对比同上", "pronunciation": {"en": null, "cn": "gōng néng xìng jìn hóng wài guāng pǔ"}, "source": "https://en.wikipedia.org/wiki/Functional_near-infrared_spectroscopy"}, {"id": "hci-001", "category": "人机交互", "term": "语音交互 (Voice UI)", "definition": "用户通过语音与系统交互，系统通过语音或视觉反馈。核心是ASR(语音识别)→NLU(意图理解)→TTS(语音合成)的闭环。", "why_it_matters": "你做云盘知识库，语音搜索是自然延伸——开车时问「我昨天的会议记录在哪」。语音交互的好坏直接影响产品体验。", "analogy": "区别类似于按遥控器(图形界面) vs 直接跟电视说「换到CCTV5」(语音交互)。", "pronunciation": {"en": "/voʊs juː aɪ/", "cn": "yǔ yīn jiāo hù"}, "related": ["hci-005"], "contrast": "语音交互(Voice UI)和自然语言交互(NLUI)有交集但不完全相同。语音交互强调「说」这个动作，NLUI强调「自然语言」这个输入方式。", "source": "https://en.wikipedia.org/wiki/Voice_user_interface"}, {"id": "hci-002", "category": "人机交互", "term": "眼动追踪 (Eye Tracking)", "definition": "通过摄像头或传感器追踪用户的眼球运动和注视点，判断用户在看什么、看了多久。", "why_it_matters": "结合AI可以做「看哪个文档就预览哪个」的免操作交互。不过当前在知识库产品中应用较少，了解趋势即可。", "analogy": "系统知道你正在盯着哪儿看——不需要鼠标点击，你「看」一下某个文件就已经选中了。", "pronunciation": {"en": "/aɪ ˈtrækɪŋ/", "cn": "yǎn dòng zhuī zōng"}, "source": "https://en.wikipedia.org/wiki/Eye_tracking"}, {"id": "hci-003", "category": "人机交互", "term": "HITL (Human-in-the-Loop 人在回路)", "definition": "在AI自动处理的流程中，关键决策节点引入人工确认。AI负责大部分工作，但拿不准的时候让人做判断。", "why_it_matters": "你做知识库产品一定会碰到——AI帮你总结了一份文档，但有些敏感信息不确定能不能公开，这时候需要人工确认。HITL是做B端AI产品的必备设计模式。", "analogy": "自动驾驶（AI处理常规路况），但到了复杂路口（关键决策）还是让人类司机接管。", "pronunciation": {"en": null, "cn": "rén zài huí lù"}, "related": ["hci-007"], "contrast": "HITL是人在关键节点介入做决策，渐进式披露是分层次展示信息让用户逐步深入。前者是干预机制，后者是信息设计原则。", "source": "https://en.wikipedia.org/wiki/Human-in-the-loop"}, {"id": "game-001", "category": "游戏开发", "term": "行为树 (Behavior Tree)", "definition": "游戏AI中用来控制角色行为的树状逻辑结构。每个节点代表一个行为或判断条件，从根节点遍历执行。", "why_it_matters": "Agent编排和游戏行为树本质上是同一种思路——把复杂行为拆成可组合的节点。了解行为树能帮你更好地理解Agent Skill SOP的编排逻辑。", "analogy": "NPC的行为流程：巡逻→(看到敌人?)→攻击→(敌人跑了?)→追击→(追丢了?)→回到巡逻。每步都是一个节点，组合成完整的行为。", "contrast": "行为树控制游戏NPC的行动逻辑，Agent控制AI智能体的任务流程。设计思路本质相同——把复杂行为拆成可组合的节点。", "pronunciation": {"en": null, "cn": "xíng wéi shù"}, "related": ["agent-001"], "source": "https://en.wikipedia.org/wiki/Behavior_tree_(artificial_intelligence,_robotics_and_control)"}, {"id": "game-002", "category": "游戏开发", "term": "ECS (Entity-Component-System 实体-组件-系统)", "definition": "一种游戏架构模式。实体是空壳(一个ID)，组件是数据(位置/血量/速度)，系统是逻辑(移动系统遍历所有有位置+速度的实体并更新位置)。", "why_it_matters": "ECS的核心思想是「数据和行为分离」。这个思路对做AI产品的启示是：尽量把数据(用户文档/知识片段)和逻辑(检索策略/回答模板)解耦。", "analogy": "超市里：货架(实体)空置但有编号，商品(组件)可以灵活摆放在不同货架上，理货员(系统)只关心「把东区货架缺货的商品补上」这个逻辑，不关心具体哪个货架。", "pronunciation": {"en": null, "cn": "shí tǐ zǔ jiàn xì tǒng"}, "related": ["game-003"], "contrast": "ECS是「数据和行为分离」的架构模式，帧同步/状态同步是网络同步方案。ECS决定代码怎么组织，同步方案决定数据怎么传输。", "source": "https://en.wikipedia.org/wiki/Entity_component_system"}, {"id": "game-003", "category": "游戏开发", "term": "帧同步 vs 状态同步", "definition": "网络游戏两种同步方式。帧同步：所有客户端在同一帧执行相同输入，保证结果一致。状态同步：服务器定期同步各对象位置/状态给客户端。", "why_it_matters": "做AI产品也会面临类似的「同步」问题——多个Agent协作时，是让每个Agent独立感知环境再汇总(状态同步)，还是统一下发指令让所有Agent按指令执行(帧同步)。", "analogy": "合唱团：帧同步是所有人看同一个指挥的节拍(统一输入)，状态同步是指挥听每个声部唱到哪了再调整(定期同步状态)。", "pronunciation": {"en": null, "cn": "zhēn tóng bù yǔ zhuàng tài tóng bù"}, "related": ["game-002"], "contrast": "对比同上", "source": "https://en.wikipedia.org/wiki/Networking_in_video_games"}, {"id": "hci-004", "category": "人机交互", "term": "主动交互 (Proactive Interaction)", "definition": "系统不是等用户提问，而是根据用户状态和环境主动提供信息或服务。比如「检测到你在编辑周报，需要帮你调出上周的会议记录吗？」", "why_it_matters": "知识库产品的差异化方向。传统搜索是被动的(用户搜了才答)，主动交互可以在用户意识到需要之前就提供帮助。你在做的个人知识库如果做到「主动推荐相关文档」，体验会大幅提升。", "analogy": "一个特别懂你的助理——你还没开口，他已经把你要的东西放在桌上了。", "pronunciation": {"en": "/proʊˈæktɪv ɪntərˈækʃən/", "cn": "zhǔ dòng jiāo hù"}, "source": "https://www.interaction-design.org/literature/topics/proactive-interaction"}, {"id": "ai-001", "category": "AI领域", "term": "具身智能 (Embodied Intelligence)", "definition": "AI不仅存在于云端，而是将智能嵌入到物理实体(机器人、智能设备)中，能感知物理世界并与之交互。", "why_it_matters": "具身智能是AI的下一个浪潮。现在你做的知识库还是纯数字产品，未来知识库可能跟智能硬件(智能音箱、AR眼镜)结合。了解具身智能有助于提前思考产品边界。", "analogy": "ChatGPT只有「大脑」没有身体，具身智能就是给AI装上身体——机器人能在真实世界里走、看、摸、做。", "pronunciation": {"en": "/ɪmˈbɒdɪd ɪnˈtelɪdʒəns/", "cn": "jù shēn zhì néng"}, "related": ["ai-006"], "contrast": "具身智能是AI有「身体」能在物理世界行动，Agentic AI是AI能「自主决策和执行」。具身智能包含硬件(机器人)，Agentic AI主要是软件。", "source": "https://en.wikipedia.org/wiki/Embodied_cognition"}];
+var K='***';
+var C=[],R=[],I=0,D=[],A=false,SX=0,SD=0,WD=false,IG=false;
+
+// 优先加载外部 JSON
+(function(){
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'data/knowledge-cards.json', true);
+  xhr.onload = function() {
+    if(xhr.status === 200) {
+      try {
+        var d = JSON.parse(xhr.responseText);
+        if(d.cards && d.cards.length > 0) {
+          C = d.cards;
+          U(); B();
+          return;
+        }
+      } catch(e) {}
+    }
+    // 加载失败，用兜底数据
+    C = CARDS_DATA;
+    U(); B();
+  };
+  xhr.onerror = function() {
+    C = CARDS_DATA;
+    U(); B();
+  };
+  xhr.send();
+})();
+function L(){try{var r=localStorage.getItem(K);if(r)return JSON.parse(r)}catch(e){}return{cards:{},reviews:[]}}
+function S(p){localStorage.setItem(K,JSON.stringify(p))}
+function P(n){n=n||5;var p=L(),dd=[],fr=[],t=new Date().toISOString().slice(0,10);for(var i=0;i<C.length;i++){var c=C[i],r=p.cards[c.id];if(r&&r.n&&r.n<=t)dd.push(c);else if(!r)fr.push(c)}sh(dd);sh(fr);var s=dd.slice(0,3);s=s.concat(fr.slice(0,n-s.length));if(s.length<n){var x=C.filter(function(x){return s.indexOf(x)<0});sh(x);s=s.concat(x.slice(0,n-s.length))}return s.slice(0,n)}
+function sh(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}}
+function M(id,st){var p=L(),t=new Date().toISOString().slice(0,10);if(!p.cards[id])p.cards[id]={c:0};var r=p.cards[id];r.s=st;r.l=t;if(st===0||st===1)r.n=A7(7);else{var d=[1,2,4,7,15,30],idx=Math.min(r.c||0,d.length-1);r.n=A7(d[idx]);r.c=(r.c||0)+1}p.reviews.push({i:id,s:st,d:t});S(p);U()}
+function A7(n){var d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function SC(i,dir){var c=R[i],ah='',ch='';if(c.analogy&&c.analogy!='')ah='<div class="cb open" onclick="TC(this)"><div class="ch">💡 类比</div><div class="cc">'+c.analogy+'</div></div>';if(c.contrast&&c.contrast!='')ch='<div class="cb open" onclick="TC(this)"><div class="ch">🔗 对比记忆</div><div class="cc">'+c.contrast+'</div></div>';
+var h='<div class="card" id="tc">'+
+'<div class="bd">'+c.category+'</div>'+
+'<div class="tm">'+c.term+'</div>'+
+(c.pronunciation&&(c.pronunciation.en||c.pronunciation.cn)?'<div class="pr">'+(c.pronunciation.en?'<span class="pe">/'+c.pronunciation.en.replace(/\//g,'')+'/</span>':'')+(c.pronunciation.cn?'<span class="pc">'+c.pronunciation.cn+'</span>':'')+'</div>':'')+
+'<div class="df">'+c.definition+'</div>'+
+'<div class="cb open" onclick="TC(this)"><div class="ch">🎯 为什么推荐</div><div class="cc">'+c.why_it_matters+'</div></div>'+
+ah+ch+
+(c.source?'<a class="sr" href="'+c.source+'" target="_blank">📎 '+c.source.replace('https://','').slice(0,30)+(c.source.length>34?'…':'')+'</a>':'')+
+'<div class="acts" data-id="'+c.id+'">'+
+'<button class="btn by" data-st="0">✅ 无需复习<span class="s">知道</span></button>'+
+'<button class="btn bw" data-st="1">📆 每周一次<span class="s">不熟</span></button>'+
+'<button class="btn br" data-st="2">🔄 每日复习<span class="s">不懂</span></button></div></div>';
+document.getElementById('cbx').innerHTML=h;var E=document.getElementById('tc');
+if(dir==='l'){E.style.transform='translateX(60px)';E.style.opacity='0';requestAnimationFrame(function(){E.style.transition='transform .4s cubic-bezier(.34,1.56,.64,1),opacity .35s ease';E.style.transform='translateX(0)';E.style.opacity='1'})}
+if(dir==='r'){E.style.transform='translateX(-60px)';E.style.opacity='0';requestAnimationFrame(function(){E.style.transition='transform .4s cubic-bezier(.34,1.56,.64,1),opacity .35s ease';E.style.transform='translateX(0)';E.style.opacity='1'})}
+var ds=document.getElementById('dts');ds.innerHTML='';for(var j=0;j<R.length;j++){var d=document.createElement('div');d.className='dt';if(j===i)d.className+=' cur';if(D.indexOf(j)>=0)d.className+=' done';ds.appendChild(d)}}
+function TC(el){el.classList.toggle('open')}
+function dcHover(el,enter){if(enter){el.style.boxShadow='0 8px 40px rgba(0,0,0,.1),0 0 0 1px rgba(139,92,246,.2)';el.style.transform=el.classList.contains('dc-main')?'rotate(-1deg) translateY(-3px)':'rotate(2.5deg) translateY(-3px)'}else{el.style.boxShadow='0 4px 20px rgba(0,0,0,.04)';el.style.transform=el.classList.contains('dc-main')?'rotate(-1.5deg)':'rotate(1.5deg)'}}
+function U(){var p=L(),t=C.length,l=0,m=0;for(var k in p.cards){l++;if(p.cards[k].s===0)m++}var pc=l?Math.round(m/l*100):0;document.getElementById('pt').textContent=l+'/'+t;document.getElementById('mt').textContent='掌握率 '+pc+'%'}
+function B(){R=P(5);I=0;D=[];if(!R||!R.length){document.getElementById('eb').style.display='block';return}document.getElementById('eb').style.display='none';SC(0)}
+function GE(){return document.getElementById('tc')}
+function DS(x){var c=GE();if(!c||A)return;IG=true;WD=false;c.style.transition='none';SX=x;SD=0}
+function DM(x){if(!IG)return;var c=GE();if(!c)return;SD=x-SX;if(Math.abs(SD)>10)WD=true;var m=SD*0.4;if((I===0&&m>0)||(I===R.length-1&&m<0))m*=0.15;c.style.transform='translateX('+m+'px)';c.style.opacity=1-Math.abs(m)/250}
+function DE(){if(!IG)return;IG=false;var c=GE();if(!c)return;c.style.transition='transform .5s cubic-bezier(.34,1.56,.64,1),opacity .35s ease';var go=I<R.length-1,pr=I>0,dir='';if(Math.abs(SD)>100)dir=SD>0?'r':'l';if((dir==='r'&&pr)||(dir==='l'&&go)){c.style.transform=(dir==='r'?'translateX(120px)':'translateX(-120px)');c.style.opacity='0';setTimeout(function(){if(dir==='r'){I--;SC(I,'l')}else{I++;SC(I,'r')}},350)}else{c.style.transform='translateX(0)';c.style.opacity='1'}SD=0}
+document.addEventListener('click',function(e){var b=e.target;if(b.tagName!=='BUTTON')b=b.parentElement;if(!b||!b.classList.contains('btn'))return;var a=b.parentElement;if(!a||!a.classList.contains('acts'))return;var id=a.getAttribute('data-id'),st=parseInt(b.getAttribute('data-st'));if(!id||isNaN(st)||WD){WD=false;return}M(id,st);D.push(I);if(I<R.length-1){var o=GE();if(o){o.style.transform='translateX(-60px)';o.style.opacity='0'}setTimeout(function(){I++;SC(I,'r')},300)}else{document.getElementById('cbx').innerHTML='';document.getElementById('eb').style.display='block';document.getElementById('dts').innerHTML=''}});
+document.querySelectorAll('.nb').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.nb').forEach(function(x){x.classList.remove('active');x.style.borderColor='';x.style.boxShadow='';x.querySelector('.lb').style.opacity='.5';x.querySelector('.lb').style.color=''});this.classList.add('active');this.style.borderColor='#7c3aed';this.style.boxShadow='0 0 24px rgba(139,92,246,.18)';this.querySelector('.lb').style.opacity='1';this.querySelector('.lb').style.color='#7c3aed';var t=this.getAttribute('data-tab');document.getElementById('la').style.display=t==='学习'?'flex':'none';document.getElementById('sa').style.display=t==='统计'?'block':'none';document.getElementById('ra').style.display=t==='复习'?'block':'none';if(t==='统计')SS();if(t==='复习')SR()})});
+var WC=0;document.addEventListener('wheel',function(e){if(document.getElementById('la').style.display==='none')return;if(A)return;var n=Date.now();if(n-WC<500)return;if(Math.abs(e.deltaX)<Math.abs(e.deltaY))return;if(e.deltaX>30&&I<R.length-1){A=true;I++;SC(I,'r');WC=n;setTimeout(function(){A=false},450)}else if(e.deltaX<-30&&I>0){A=true;I--;SC(I,'l');WC=n;setTimeout(function(){A=false},450)}},{passive:true});
+document.addEventListener('keydown',function(e){if(document.getElementById('la').style.display==='none')return;if(e.key==='ArrowLeft'&&I>0){I--;SC(I,'l')}if(e.key==='ArrowRight'&&I<R.length-1){I++;SC(I,'r')}});
+function SS(){var p=L(),t=C.length,l=0,sc={0:0,1:0,2:0};for(var k in p.cards){l++;var s=p.cards[k].s;if(s!==undefined)sc[s]++}var rv=p.reviews||[],d=rv.length?Math.ceil((new Date()-new Date(rv[0].d))/86400000):0;var ct={},cl={};for(var i=0;i<C.length;i++){var ct_=C[i].category;ct[ct_]=(ct[ct_]||0)+1}for(var id in p.cards){for(var i=0;i<C.length;i++){if(C[i].id===id){var cl_=C[i].category;cl[cl_]=(cl[cl_]||0)+1;break}}}var co={'AI产品':'#6366f1','算法/模型':'#8b5cf6','脑机接口':'#ec4899','人机交互':'#10b981','游戏开发':'#f59e0b','AI领域':'#06b6d4'};var dh='';for(var ct_ in ct){var tot=ct[ct_],lrn=cl[ct_]||0,pct=Math.round(lrn/tot*100)||0,col=co[ct_]||'#888';dh+='<div class="dr"><span class="dn">'+ct_+'</span><div class="db"><div class="df" style="width:'+pct+'%;background:'+col+'"></div></div><span class="dc">'+lrn+'/'+tot+'</span></div>'}
+document.getElementById('sa').innerHTML='<div class="sd"><h3>📊 学习总览</h3><div class="sg"><div class="si"><div class="nm">'+l+'</div><div class="lb">已学</div></div><div class="si"><div class="nm">'+(sc[0]||0)+'</div><div class="lb">已掌握</div></div><div class="si"><div class="nm">'+(sc[1]||0)+'</div><div class="lb">需复习</div></div><div class="si"><div class="nm">'+(sc[2]||0)+'</div><div class="lb">复习中</div></div></div></div><div class="sd"><h3>📂 领域分布</h3>'+dh+'</div><div class="sd"><h3>📈 记录</h3><p style="font-size:14px;color:#6b7280;">累计 '+(d||'今天开始')+' 天 · '+rv.length+' 次标注</p></div>'}
+function SR(){var p=L(),t=new Date().toISOString().slice(0,10),ls=['无需复习','每周复习','每日复习'],dh='',dc=0;for(var i=0;i<C.length;i++){var c=C[i],r=p.cards[c.id];if(r&&r.n&&r.n<=t&&r.l!==t){dc++;dh+='<div class="ri"><span class="rt">'+c.term+'</span><span class="rs rs'+r.s+'">'+(ls[r.s]||'')+'</span></div>'}}var h='<div class="sd"><h3>⏰ 待复习 ('+dc+')</h3>'+(dh||'<p style="font-size:14px;color:#6b7280;padding:4px 0;">✅ 当前没有待复习的卡片</p>')+'</div>';var rv=p.reviews||[];h+='<div class="sd"><h3>📝 最近记录</h3>';if(rv.length){var st=Math.max(0,rv.length-20);for(var i=rv.length-1;i>=st;i--){var r=rv[i],nm='',lb=ls[r.s]||'',em=r.s===0?'✅':(r.s===1?'📆':'🔄');for(var j=0;j<C.length;j++){if(C[j].id===r.i){nm=C[j].term;break}}h+='<div class="ri"><span class="rd">'+r.d+'</span><span class="rt">'+nm+'</span><span class="rs rs'+r.s+'">'+em+' '+lb+'</span></div>'}}else{h+='<p style="font-size:14px;color:#6b7280;">还没有学习记录</p>'}h+='</div>';document.getElementById('ra').innerHTML=h}
+document.getElementById('cbx').addEventListener('touchstart',function(e){DS(e.touches[0].clientX)},{passive:true});
+document.getElementById('cbx').addEventListener('touchmove',function(e){DM(e.touches[0].clientX)},{passive:true});
+document.getElementById('cbx').addEventListener('touchend',DE);
+document.getElementById('cbx').addEventListener('mousedown',function(e){DS(e.clientX)});
+document.addEventListener('mousemove',function(e){if(IG)DM(e.clientX)});
+document.addEventListener('mouseup',function(e){if(IG)DE()});
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# 📚 AI 知识卡片 · AI Glossary Cards
+# 📚 AI 知识卡片 · AI Glossary Cards demo
 
 > 每天 5 张卡片，积累 AI 产品经理必知必会的专业术语。
 
